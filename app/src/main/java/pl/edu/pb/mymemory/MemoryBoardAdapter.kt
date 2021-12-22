@@ -10,8 +10,10 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pb.mymemory.models.BoardSize
 import kotlin.math.min
-                                                        //object 'Board size'
-class MemoryBoardAdapter(private val context: Context, private val boardSize: BoardSize) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
+
+class MemoryBoardAdapter(private val context: Context,
+                         private val boardSize: BoardSize, //model 'Board size'
+                         private val cardImages: List<Int>) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
 
     companion object {
         private const val MARGIN_SIZE = 10
@@ -45,7 +47,11 @@ class MemoryBoardAdapter(private val context: Context, private val boardSize: Bo
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageButton = itemView.findViewById<ImageButton>(R.id.imageButton)
+
         fun bind(position: Int) {
+
+            //seting image as background
+            imageButton.setImageResource(cardImages[position])
             imageButton.setOnClickListener{
                 Log.i(TAG, "Clicked on position $position")
             }

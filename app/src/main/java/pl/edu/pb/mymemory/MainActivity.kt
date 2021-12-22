@@ -6,10 +6,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pb.mymemory.models.BoardSize
+import pl.edu.pb.mymemory.utils.DEFAULT_ICONS
 
 class MainActivity : AppCompatActivity() {
 
-    //will be set in onCreate metod
+    //will be set in onCreate method
     private lateinit var rvBoard: RecyclerView
     private lateinit var tvNumMoves: TextView
     private lateinit var tvNumPairs: TextView
@@ -26,9 +27,14 @@ class MainActivity : AppCompatActivity() {
         tvNumMoves = findViewById(R.id.tvNumMoves)
         tvNumPairs = findViewById(R.id.tvNumPairs)
 
+        //chosen images and doubling amount
+        val chosenImages = DEFAULT_ICONS.shuffled().take(boardSize.getNumPairs())
+        val randomizedImages = (chosenImages + chosenImages).shuffled()
+
+
         //Adapter provide a binding for the data set to the views of the RecyclerView | adapt each piece of data into a view
                                             //MainActivity is context, how many elements is in our grid
-        rvBoard.adapter = MemoryBoardAdapter(this, boardSize)
+        rvBoard.adapter = MemoryBoardAdapter(this, boardSize, randomizedImages)
 
         //optimisation - size of adapter always be defined as soon as the app boots up
         rvBoard.setHasFixedSize(true)
