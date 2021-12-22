@@ -9,11 +9,12 @@ import android.widget.ImageButton
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pb.mymemory.models.BoardSize
+import pl.edu.pb.mymemory.models.MemoryCard
 import kotlin.math.min
 
 class MemoryBoardAdapter(private val context: Context,
                          private val boardSize: BoardSize, //model 'Board size'
-                         private val cardImages: List<Int>) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
+                         private val cards: List<MemoryCard>) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
 
     companion object {
         private const val MARGIN_SIZE = 10
@@ -50,8 +51,10 @@ class MemoryBoardAdapter(private val context: Context,
 
         fun bind(position: Int) {
 
-            //seting image as background
-            imageButton.setImageResource(cardImages[position])
+            //setting image as background
+            //checkig that card is faced up
+            val memoryCard = cards[position]
+            imageButton.setImageResource(if (memoryCard.isFaceUp) memoryCard.identifier else R.drawable.ic_launcher_background)
             imageButton.setOnClickListener{
                 Log.i(TAG, "Clicked on position $position")
             }
