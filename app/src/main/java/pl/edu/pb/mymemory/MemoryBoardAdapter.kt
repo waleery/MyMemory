@@ -14,13 +14,20 @@ import kotlin.math.min
 
 class MemoryBoardAdapter(private val context: Context,
                          private val boardSize: BoardSize, //model 'Board size'
-                         private val cards: List<MemoryCard>) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
+                         private val cards: List<MemoryCard>,
+                         private val cardClickListener: CardClickListener) : RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
 
     companion object {
         private const val MARGIN_SIZE = 10
         private const val TAG = "MemoryBoardAdapter"
-
     }
+
+    //maked to pass instance of this interface (inform MainActivity about click)
+    interface CardClickListener{
+        fun onCardClicked(position: Int)
+    }
+
+
     //figuring how to create one view of our recyclerView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -55,8 +62,11 @@ class MemoryBoardAdapter(private val context: Context,
             //checkig that card is faced up
             val memoryCard = cards[position]
             imageButton.setImageResource(if (memoryCard.isFaceUp) memoryCard.identifier else R.drawable.ic_launcher_background)
+
+            //when card is clicked
             imageButton.setOnClickListener{
                 Log.i(TAG, "Clicked on position $position")
+                cardClickListener.onCardClicked(position)
             }
         }
     }

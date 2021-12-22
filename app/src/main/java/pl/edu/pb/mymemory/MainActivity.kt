@@ -2,14 +2,18 @@ package pl.edu.pb.mymemory
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pb.mymemory.models.BoardSize
-import pl.edu.pb.mymemory.models.MemoryCard
-import pl.edu.pb.mymemory.utils.DEFAULT_ICONS
+import pl.edu.pb.mymemory.models.MemoryGame
 
 class MainActivity : AppCompatActivity() {
+
+    companion object{
+        private const val TAG = "MainActivity"
+    }
 
     //will be set in onCreate method
     private lateinit var rvBoard: RecyclerView
@@ -28,15 +32,18 @@ class MainActivity : AppCompatActivity() {
         tvNumMoves = findViewById(R.id.tvNumMoves)
         tvNumPairs = findViewById(R.id.tvNumPairs)
 
-        //chose images and doubling amount
-        val chosenImages = DEFAULT_ICONS.shuffled().take(boardSize.getNumPairs())
-        val randomizedImages = (chosenImages + chosenImages).shuffled()
-        val memoryCards = randomizedImages.map{MemoryCard(it)}
+        //making object MemoryGame
+        val memoryGame = MemoryGame(boardSize)
 
 
         //Adapter provide a binding for the data set to the views of the RecyclerView | adapt each piece of data into a view
                                             //MainActivity is context, how many elements is in our grid, list of pictures
-        rvBoard.adapter = MemoryBoardAdapter(this, boardSize, memoryCards )
+        rvBoard.adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener{
+            override fun onCardClicked(position: Int) {
+                Log.i(TAG, "Card clicked $position")
+            }
+
+        } )
 
         //optimisation - size of adapter always be defined as soon as the app boots up
         rvBoard.setHasFixedSize(true)
