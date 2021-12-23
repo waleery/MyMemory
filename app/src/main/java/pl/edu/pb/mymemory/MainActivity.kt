@@ -26,10 +26,7 @@ class MainActivity : AppCompatActivity() {
     companion object{
         private const val TAG = "MainActivity"
         private const val CREATE_REQUEST_CODE = 17300 //it could be random nuber
-
     }
-
-
 
     //will be set in onCreate method
     private lateinit var clRoot: ConstraintLayout
@@ -52,7 +49,16 @@ class MainActivity : AppCompatActivity() {
         tvNumMoves = findViewById(R.id.tvNumMoves)
         tvNumPairs = findViewById(R.id.tvNumPairs)
 
+
+        //not to production (to fastest move to create custom game)
+        val intent = Intent(this, CreateActivity::class.java)
+        intent.putExtra(EXTRA_BOARD_SIZE, BoardSize.MEDIUM)
+        startActivity(intent)
+        //////////////////////////////
+
+
         setupBoard()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
