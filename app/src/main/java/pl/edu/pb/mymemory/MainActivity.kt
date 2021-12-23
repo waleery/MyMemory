@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.models.MemoryGame
+import pl.edu.pb.mymemory.utils.EXTRA_BOARD_SIZE
 
 class MainActivity : AppCompatActivity() {
 
@@ -102,6 +103,8 @@ class MainActivity : AppCompatActivity() {
             }
             //Navigate to a new activity
             val intent = Intent(this, CreateActivity::class.java)
+            //to send additional data
+            intent.putExtra(EXTRA_BOARD_SIZE, desiredBoardSize)
             startActivityForResult(intent, CREATE_REQUEST_CODE)
         })
     }
