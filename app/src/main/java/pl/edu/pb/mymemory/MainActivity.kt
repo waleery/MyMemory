@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.models.MemoryGame
 
@@ -18,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
 
     //will be set in onCreate method
+    private lateinit var clRoot: ConstraintLayout
     private lateinit var rvBoard: RecyclerView
     private lateinit var tvNumMoves: TextView
     private lateinit var tvNumPairs: TextView
@@ -25,13 +28,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MemoryBoardAdapter
 
     //choosing game mode
-    private var boardSize: BoardSize = BoardSize.HARD
+    private var boardSize: BoardSize = BoardSize.EASY
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        clRoot = findViewById(R.id.clRoot)
         rvBoard = findViewById(R.id.rvBoard)
         tvNumMoves = findViewById(R.id.tvNumMoves)
         tvNumPairs = findViewById(R.id.tvNumPairs)
@@ -61,6 +65,19 @@ class MainActivity : AppCompatActivity() {
     }
     //updating the memory game with attempted flip at this position
     private fun updateGameWithFlip(position: Int) {
+        //Error checking
+        if (memoryGame.haveWonGame()){
+            //Alert the user of an invalid move
+            Snackbar.make(clRoot, "You have already won!",  Snackbar.LENGTH_LONG).show()
+
+            return
+        }
+        if (memoryGame.isCardFaceUp(position)){
+            Snackbar.make(clRoot, "Invalid move!",  Snackbar.LENGTH_LONG).show()
+            //Alert the user of an invalid move
+            return
+        }
+
         memoryGame.flipCard(position)
 
         //notifing MemoryBoardAdapt about data change

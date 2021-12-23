@@ -48,12 +48,23 @@ class MemoryGame(private val  boardSize: BoardSize){
         return true
     }
 
+    //flip cards whose arent matched
     private fun restoreCards() {
         for (card in cards) {
             if(!card.isMatched){
                 card.isFaceUp = false
             }
         }
+    }
+
+    //checking that user have won the game
+    fun haveWonGame(): Boolean {
+        return numPairsFound == boardSize.getNumPairs()
+    }
+
+
+    fun isCardFaceUp(position: Int): Boolean {
+        return cards[position].isFaceUp
     }
 }
 
