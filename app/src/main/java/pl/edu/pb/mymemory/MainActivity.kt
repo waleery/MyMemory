@@ -1,6 +1,7 @@
 package pl.edu.pb.mymemory
 
 import android.animation.ArgbEvaluator
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         private const val TAG = "MainActivity"
+        private const val CREATE_REQUEST_CODE = 17300 //it could be random nuber
+
     }
 
 
@@ -70,13 +73,37 @@ class MainActivity : AppCompatActivity() {
                 }
                 return true
             }
-
+            //if user select option to change size
             R.id.mi_new_size -> {
                 showNewSizeDialog()
                 return true
             }
+            //if user select option to CustomGame
+            R.id.mi_custom -> {
+                showCreationDialog()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showCreationDialog() {
+        //creating new view to pick game mode
+        val boardSizeView = LayoutInflater.from(this).inflate(R.layout.dialog_board_size, null)
+
+        //all buttons with game options
+        val radioGroupSize = boardSizeView.findViewById<RadioGroup>(R.id.radioGroup)
+
+        showAlertDialog("Create your own memory board", boardSizeView, View.OnClickListener {
+            //Set a new value for the board size
+            val desiredBoardSize = when (radioGroupSize.checkedRadioButtonId){
+                R.id.rbEasy -> BoardSize.EASY
+                R.id.rbMedium -> BoardSize.MEDIUM
+                else -> BoardSize.HARD
+            }
+            //Navigate to a new activity
+            val intent = Intent(this, CreateActivity::class.java)
+            startActivityForResult(intent, CREATE_REQUEST_CODE)
+        })
     }
 
     private fun showNewSizeDialog() {
