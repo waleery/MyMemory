@@ -3,9 +3,16 @@ package pl.edu.pb.mymemory
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
@@ -14,9 +21,11 @@ import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pb.mymemory.models.BoardSize
+import pl.edu.pb.mymemory.utils.BitmapScaler
 import pl.edu.pb.mymemory.utils.EXTRA_BOARD_SIZE
 import pl.edu.pb.mymemory.utils.isPermissionGranted
 import pl.edu.pb.mymemory.utils.requestPermission
+import java.io.ByteArrayOutputStream
 import kotlin.math.log
 
 class CreateActivity : AppCompatActivity() {
@@ -26,6 +35,8 @@ class CreateActivity : AppCompatActivity() {
         private const val PICK_PHOTOS_CODE = 12
         private const val READ_EXTERNAL_PHOTOS_CODE = 248
         private const val READ_PHOTOS_PERMISSIONS = android.Manifest.permission.READ_EXTERNAL_STORAGE
+        private const val MIN_GAME_LENGTH = 3
+        private const val MAX_GAME_LENGTH = 14
     }
 
     private lateinit var adapter: ImagePickerAdapter
@@ -57,6 +68,23 @@ class CreateActivity : AppCompatActivity() {
         // ? - only call this atribute if action bar is not null
         supportActionBar?.title = "Choose pics (0 / $numImagesRequired)"
 
+        btnSave.setOnClickListener {
+            saveDataToFirebase()
+        }
+
+        //max length of gamename
+        etGameName.filters = arrayOf(InputFilter.LengthFilter(MAX_GAME_LENGTH))
+
+        //checking that user set game name
+        etGameName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                btnSave.isEnabled = shouldEnableSaveButton()
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
         //CreateActivity is context, choosen images, size of board, instance of the interface
         adapter = ImagePickerAdapter(this, chosenImageUris, boardSize, object: ImagePickerAdapter.ImageClickListener{
 
@@ -82,6 +110,8 @@ class CreateActivity : AppCompatActivity() {
         rvImagePicker.layoutManager = GridLayoutManager(this, boardSize.getWidth())
     }
 
+
+    //answer - have or not permissions
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -116,7 +146,7 @@ class CreateActivity : AppCompatActivity() {
             return
         }
         val selectedUri = data.data    //one image
-        val clipData = data.clipData   // multiple images
+        val clipData = data.clipData   // multiple images - to avoid problems on different devices
         if (clipData != null) {
             Log.i(TAG, "clipData num images ${clipData.itemCount}: $ clipData")
             for (i in 0 until clipData.itemCount) {
@@ -134,8 +164,42 @@ class CreateActivity : AppCompatActivity() {
         btnSave.isEnabled = shouldEnableSaveButton()
     }
 
+    private fun saveDataToFirebase() {
+        Log.i(TAG, "Save data to Firebase")
+        for ((index,photoUri) in chosenImageUris.withIndex()) {
+            //downgrading the quality of the image
+            val imageByteArray =  getImageByteArray(photoUri)
+        }
+    }
+
+    //downgrading the quality of the image
+    private fun getImageByteArray(photoUri: Uri): ByteArray {
+        //if the phone operating system is running > andorid Pie then orginal bitmap
+        val originalBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            val source = ImageDecoder.createSource(contentResolver, photoUri)
+            ImageDecoder.decodeBitmap(source)
+        //in older version
+        } else {
+            MediaStore.Images.Media.getBitmap(contentResolver, photoUri)
+        }
+        Log.i(TAG, "Original width ${originalBitmap.width} and height ${originalBitmap.height}")
+        val scaledBitmap = BitmapScaler.scaleToFitHeight(originalBitmap, 250)
+        Log.i(TAG, "Scaled width ${scaledBitmap.width} and height ${scaledBitmap.height}")
+
+        val byteOutputStream = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 60, byteOutputStream)
+        return byteOutputStream.toByteArray()
+    }
+
     private fun shouldEnableSaveButton(): Boolean {
         //check if we should enable save button
+
+        if(chosenImageUris.size != numImagesRequired) {
+            return false
+        }
+        if (etGameName.text.isBlank() || etGameName.text.length < MIN_GAME_LENGTH) {
+            return false
+        }
         return true
     }
 
