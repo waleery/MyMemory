@@ -48,11 +48,13 @@ class MemoryBoardAdapter(private val context: Context,
 
         return ViewHolder(view)
     }
-    //how many elements are in our recycler view
+
+    //responsible for taking a data and binding it to this view holder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(position)
     }
 
+    //how many elements are in our recycler view
     override fun getItemCount() =  boardSize.numCards
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

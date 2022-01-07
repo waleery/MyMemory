@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         //all buttons with game options
         val radioGroupSize = boardSizeView.findViewById<RadioGroup>(R.id.radioGroup)
 
-        //whitch one is selected
+        //witch one is selected
         when (boardSize) {
             BoardSize.EASY -> radioGroupSize.check(R.id.rbEasy)
             BoardSize.MEDIUM -> radioGroupSize.check(R.id.rbMedium)
@@ -175,8 +175,10 @@ class MainActivity : AppCompatActivity() {
 
 
         //Adapter provide a binding for the data set to the views of the RecyclerView | adapt each piece of data into a view
-        //MainActivity is context, how many elements is in our grid, list of pictures
+        //MainActivity is context, how many elements is in our grid, list of pictures, instance
         adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener{
+
+            //when user click square
             override fun onCardClicked(position: Int) {
                 Log.i(TAG, "Card clicked $position")
                 updateGameWithFlip(position)
@@ -188,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         rvBoard.setHasFixedSize(true)
 
         //LayoutManager measures and positions item views
-        //MainActivity is context, number of columns
+        //MainActivity is context, second argument is number of columns
         rvBoard.layoutManager = GridLayoutManager(this, boardSize.getWidth())
     }
 
