@@ -3,6 +3,7 @@ package pl.edu.pb.mymemory
 import android.animation.ArgbEvaluator
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,12 +16,15 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.squareup.picasso.Picasso
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.models.MemoryGame
 import pl.edu.pb.mymemory.models.UserImageList
@@ -35,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //will be set in onCreate method
-    private lateinit var clRoot: ConstraintLayout
+    private lateinit var clRoot: CoordinatorLayout
     private lateinit var rvBoard: RecyclerView
     private lateinit var tvNumMoves: TextView
     private lateinit var tvNumPairs: TextView
@@ -121,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             val userImageList = document.toObject(UserImageList::class.java)
             if (userImageList?.images == null) {
                 Log.e(TAG, "Invalid custom game data from FireStore")
-                Snackbar.make(clRoot, "Sorrym we couldn't find any such game, '$customGameName'", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(clRoot, "Sorry, we couldn't find any such game, '$customGameName'", Snackbar.LENGTH_LONG).show()
                  return@addOnSuccessListener
             }
             //if successful
@@ -129,6 +133,11 @@ class MainActivity : AppCompatActivity() {
             boardSize = BoardSize.getByValue(numCards)
             gameName = customGameName
             customGameImages = userImageList.images
+            //preload custom images
+            for (imageUrl in userImageList.images) {
+                Picasso.get().load(imageUrl).fetch()
+            }
+            Snackbar.make(clRoot, "You are now playing '$customGameName'!", Snackbar.LENGTH_LONG).show()
             setupBoard()
         }.addOnFailureListener { exception ->
             Log.e(TAG, "Exception when retriving game", exception)
@@ -279,9 +288,9 @@ class MainActivity : AppCompatActivity() {
             tvNumPairs.text = "Pairs: ${memoryGame.numPairsFound} / ${boardSize.getNumPairs()}"
 
 
-            if(memoryGame.haveWonGame())
-            {
+            if(memoryGame.haveWonGame()) {
                 Snackbar.make(clRoot, "You won!",  Snackbar.LENGTH_LONG).show()
+                CommonConfetti.rainingConfetti(clRoot, intArrayOf(Color.YELLOW, Color.RED, Color.MAGENTA)).oneShot()
             }
         }
 

@@ -69,7 +69,7 @@ class MemoryBoardAdapter(private val context: Context,
             if (memoryCard.isFaceUp) {
                 //if its a custom game, draw custom image
                 if (memoryCard.imageUrl != null) {
-                    Picasso.get().load(memoryCard.imageUrl).into(imageButton)
+                    Picasso.get().load(memoryCard.imageUrl).placeholder(R.drawable.ic_image).into(imageButton)
                 } else {
                     imageButton.setImageResource(memoryCard.identifier)
                 }
