@@ -2,11 +2,13 @@ package pl.edu.pb.mymemory
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.nfc.Tag
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -25,10 +27,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import pl.edu.pb.mymemory.models.BoardSize
-import pl.edu.pb.mymemory.utils.BitmapScaler
-import pl.edu.pb.mymemory.utils.EXTRA_BOARD_SIZE
-import pl.edu.pb.mymemory.utils.isPermissionGranted
-import pl.edu.pb.mymemory.utils.requestPermission
+import pl.edu.pb.mymemory.utils.*
 import java.io.ByteArrayOutputStream
 import kotlin.math.log
 
@@ -55,7 +54,7 @@ class CreateActivity : AppCompatActivity() {
     private val chosenImageUris = mutableListOf<Uri>()
     private val storage = Firebase.storage
 
-    private val sb = Firebase.firestore
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -213,7 +212,28 @@ class CreateActivity : AppCompatActivity() {
 
     private fun handleAllImagesUploaded(gameName: String, imageUrls: MutableList<String>) {
         //TODO: upload this info to firestore
+        //list of all game that users have made
+        db.collection("games").document(gameName)
+                //list "images" of links
+            .set(mapOf("images" to imageUrls))
+            .addOnCompleteListener { gameCreationTask ->
+                if( !gameCreationTask.isSuccessful) {
+                    Log.e(TAG, "Exception with game creation", gameCreationTask.exception)
+                    Toast.makeText(this, "Failed game creation", Toast.LENGTH_SHORT).show()
+                    return@addOnCompleteListener
+                }
+                //if upload to firebase was successful
+                Log.i(TAG, "Succesfully created game $gameName")
+                AlertDialog.Builder(this)
+                    .setTitle("Uploaded complete! Let's play your game '$gameName'")
+                    .setPositiveButton("Ok") { _, _ ->
+                        val resultData = Intent()
+                        resultData.putExtra(EXTRA_GAME_NAME, gameName)
+                        setResult(RESULT_OK, resultData)
+                        finish()
+                    }.show()
 
+            }
     }
 
     //downgrading the quality of the image
