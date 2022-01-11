@@ -2,7 +2,7 @@ package pl.edu.pb.mymemory.models
 
 import pl.edu.pb.mymemory.utils.DEFAULT_ICONS
 
-class MemoryGame(private val  boardSize: BoardSize){
+class MemoryGame(private val boardSize: BoardSize, private val customImages: List<String>?){
 
     val cards: List<MemoryCard>
     var numPairsFound = 0
@@ -11,10 +11,17 @@ class MemoryGame(private val  boardSize: BoardSize){
     private var indexOfSingleSelectedCard: Int? = null
 
     init {
-        //chose images and doubling amount
-        val chosenImages = DEFAULT_ICONS.shuffled().take(boardSize.getNumPairs())
-        val randomizedImages = (chosenImages + chosenImages).shuffled()
-        cards = randomizedImages.map{MemoryCard(it)}
+        if (customImages == null ){
+            //chose images and doubling amount
+            val chosenImages = DEFAULT_ICONS.shuffled().take(boardSize.getNumPairs())
+            val randomizedImages = (chosenImages + chosenImages).shuffled()
+            cards = randomizedImages.map{MemoryCard(it)}
+        } else {
+            val randomizedImages = (customImages + customImages).shuffled()
+            //hashCode - to get unique id
+            cards = randomizedImages.map{MemoryCard(it.hashCode(), it)}
+
+        }
     }
 
     //logic

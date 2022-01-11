@@ -1,6 +1,7 @@
 package pl.edu.pb.mymemory
 
 import android.animation.ArgbEvaluator
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,9 +18,13 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.models.MemoryGame
+import pl.edu.pb.mymemory.models.UserImageList
 import pl.edu.pb.mymemory.utils.EXTRA_BOARD_SIZE
+import pl.edu.pb.mymemory.utils.EXTRA_GAME_NAME
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +38,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvBoard: RecyclerView
     private lateinit var tvNumMoves: TextView
     private lateinit var tvNumPairs: TextView
+
+    private val db = Firebase.firestore
+
+    //is only set when user is playing own custom game
+    private var gameName: String? = null
+    private var customGameImages: List<String>? = null
+
     private lateinit var memoryGame: MemoryGame
     private lateinit var adapter: MemoryBoardAdapter
 
@@ -84,6 +96,38 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == CREATE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val customGameName = data?.getStringExtra(EXTRA_GAME_NAME)
+            //checking if we have recived gameName
+            if(customGameName == null) {
+                Log.e(TAG, "Got null custom game from CreateActivity")
+                return
+            }
+            downloadGame(customGameName)
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun downloadGame(customGameName: String) {
+        db.collection("games").document(customGameName).get().addOnSuccessListener { document ->
+            val userImageList = document.toObject(UserImageList::class.java)
+            if (userImageList?.images == null) {
+                Log.e(TAG, "Invalid custom game data from FireStore")
+                Snackbar.make(clRoot, "Sorrym we couldn't find any such game, '$customGameName'", Snackbar.LENGTH_LONG).show()
+                 return@addOnSuccessListener
+            }
+            //if successful
+            val numCards = userImageList.images.size * 2
+            boardSize = BoardSize.getByValue(numCards)
+            gameName = customGameName
+            customGameImages = userImageList.images
+            setupBoard()
+        }.addOnFailureListener { exception ->
+            Log.e(TAG, "Exception when retriving game", exception)
+        }
+    }
+
     private fun showCreationDialog() {
         //creating new view to pick game mode
         val boardSizeView = LayoutInflater.from(this).inflate(R.layout.dialog_board_size, null)
@@ -126,6 +170,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.rbMedium -> BoardSize.MEDIUM
                 else -> BoardSize.HARD
             }
+            gameName = null
+            customGameImages = null
             setupBoard()
         })
     }
@@ -143,6 +189,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupBoard() {
+        //display custom gamename
+        supportActionBar?.title = gameName ?: getString(R.string.app_name)
         when (boardSize) {
             BoardSize.EASY -> {
                 tvNumMoves.text = "Easy: 4 x 2"
@@ -162,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         tvNumPairs.setTextColor(ContextCompat.getColor(this, R.color.color_progress_none))
 
         //making property MemoryGame
-        memoryGame = MemoryGame(boardSize)
+        memoryGame = MemoryGame(boardSize, customGameImages)
 
 
         //Adapter provide a binding for the data set to the views of the RecyclerView | adapt each piece of data into a view

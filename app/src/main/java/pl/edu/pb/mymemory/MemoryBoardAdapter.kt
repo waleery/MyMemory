@@ -10,6 +10,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.models.MemoryCard
 import kotlin.math.min
@@ -65,7 +66,17 @@ class MemoryBoardAdapter(private val context: Context,
             //setting image as background
             //checking that card is faced up
             val memoryCard = cards[position]
-            imageButton.setImageResource(if (memoryCard.isFaceUp) memoryCard.identifier else R.drawable.ic_launcher_background)
+            if (memoryCard.isFaceUp) {
+                //if its a custom game, draw custom image
+                if (memoryCard.imageUrl != null) {
+                    Picasso.get().load(memoryCard.imageUrl).into(imageButton)
+                } else {
+                    imageButton.setImageResource(memoryCard.identifier)
+                }
+                //if card is facedDown
+            } else {
+                imageButton.setImageResource(R.drawable.ic_launcher_background)
+            }
 
             //changing opacity and color matched cards
             imageButton.alpha = if(memoryCard.isMatched) .4f else 1.0f
