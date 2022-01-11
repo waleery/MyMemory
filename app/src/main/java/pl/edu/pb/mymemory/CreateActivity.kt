@@ -1,5 +1,6 @@
 package pl.edu.pb.mymemory
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +21,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import pl.edu.pb.mymemory.models.BoardSize
 import pl.edu.pb.mymemory.utils.BitmapScaler
 import pl.edu.pb.mymemory.utils.EXTRA_BOARD_SIZE
@@ -34,7 +38,7 @@ class CreateActivity : AppCompatActivity() {
         private const val TAG = "CreateActivity"
         private const val PICK_PHOTOS_CODE = 12
         private const val READ_EXTERNAL_PHOTOS_CODE = 248
-        private const val READ_PHOTOS_PERMISSIONS = android.Manifest.permission.READ_EXTERNAL_STORAGE
+        private const val READ_PHOTOS_PERMISSIONS = Manifest.permission.READ_EXTERNAL_STORAGE
         private const val MIN_GAME_LENGTH = 3
         private const val MAX_GAME_LENGTH = 14
     }
@@ -49,6 +53,9 @@ class CreateActivity : AppCompatActivity() {
 
     //uniform resource identifier
     private val chosenImageUris = mutableListOf<Uri>()
+    private val storage = Firebase.storage
+
+    private val sb = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +148,7 @@ class CreateActivity : AppCompatActivity() {
     //if user choose pics
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != PICK_PHOTOS_CODE || resultCode != Activity.RESULT_OK || data == null){
+        if (requestCode != PICK_PHOTOS_CODE || resultCode != RESULT_OK || data == null){
             Log.w(TAG, "Did not get data back from the launched activity, user likely canceled flow")
             return
         }
@@ -165,11 +172,45 @@ class CreateActivity : AppCompatActivity() {
     }
 
     private fun saveDataToFirebase() {
+        val customGameName = etGameName.text.toString()
         Log.i(TAG, "Save data to Firebase")
+        var didEncounteredError = false
+        val uploadedImageUrls = mutableListOf<String>()
+
         for ((index,photoUri) in chosenImageUris.withIndex()) {
             //downgrading the quality of the image
             val imageByteArray =  getImageByteArray(photoUri)
+            val filePath = "images/$customGameName/${System.currentTimeMillis()}-${index}.jpg"
+            val photoReference = storage.reference.child(filePath)
+
+            //wait until it succeeds or fails
+            photoReference.putBytes(imageByteArray)
+                .continueWithTask { photoUploadTask ->
+                    Log.i(TAG, "Uploaded bytes: ${photoUploadTask.result?.bytesTransferred}")
+                    photoReference.downloadUrl
+                }.addOnCompleteListener { downloadUrlTask ->
+                    if (!downloadUrlTask.isSuccessful) {
+                        Log.e(TAG, "Exception with Firebase storage", downloadUrlTask.exception)
+                        Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                        didEncounteredError = true
+                        return@addOnCompleteListener
+                    }
+                    if(didEncounteredError){
+                        return@addOnCompleteListener
+                    }
+                    val downloadUrl = downloadUrlTask.result.toString()
+                    uploadedImageUrls.add(downloadUrl)
+                    Log.i(TAG, "Finished uploading $photoUri, num uploaded ${uploadedImageUrls.size}")
+                    if(uploadedImageUrls.size == chosenImageUris.size) {
+                        handleAllImagesUploaded(customGameName, uploadedImageUrls)
+                    }
+                }
         }
+    }
+
+    private fun handleAllImagesUploaded(gameName: String, imageUrls: MutableList<String>) {
+        //TODO: upload this info to firestore
+
     }
 
     //downgrading the quality of the image

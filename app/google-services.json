@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "206900328847",
+    "project_id": "my-memory-5f5c6",
+    "storage_bucket": "my-memory-5f5c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206900328847:android:0fdaa576269b5d1f4873fa",
+        "android_client_info": {
+          "package_name": "pl.edu.pb.mymemory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206900328847-svmpi9mob7o17im0b9mkhpaj9p0744ad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDakYrAt6yQKNmM6piinOjizK6p7vy91fc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206900328847-svmpi9mob7o17im0b9mkhpaj9p0744ad.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
