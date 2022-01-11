@@ -75,7 +75,7 @@ class MemoryBoardAdapter(private val context: Context,
                 }
                 //if card is facedDown
             } else {
-                imageButton.setImageResource(R.drawable.ic_launcher_background)
+                imageButton.setImageResource(R.drawable.questionmark)
             }
 
             //changing opacity and color matched cards
