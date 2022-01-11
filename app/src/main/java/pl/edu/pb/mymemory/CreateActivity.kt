@@ -171,8 +171,10 @@ class CreateActivity : AppCompatActivity() {
         btnSave.isEnabled = shouldEnableSaveButton()
     }
 
+
+
     private fun saveDataToFirebase() {
-        val customGameName = etGameName.text.toString()
+        val customGameName = etGameName.text.toString().trim()
         Log.i(TAG, "Save data to Firebase")
         var didEncounteredError = false
         val uploadedImageUrls = mutableListOf<String>()
@@ -182,7 +184,6 @@ class CreateActivity : AppCompatActivity() {
             val imageByteArray =  getImageByteArray(photoUri)
             val filePath = "images/$customGameName/${System.currentTimeMillis()}-${index}.jpg"
             val photoReference = storage.reference.child(filePath)
-
             //wait until it succeeds or fails
             photoReference.putBytes(imageByteArray)
                 .continueWithTask { photoUploadTask ->
@@ -198,6 +199,8 @@ class CreateActivity : AppCompatActivity() {
                     if(didEncounteredError){
                         return@addOnCompleteListener
                     }
+
+                    //if uploading was successful
                     val downloadUrl = downloadUrlTask.result.toString()
                     uploadedImageUrls.add(downloadUrl)
                     Log.i(TAG, "Finished uploading $photoUri, num uploaded ${uploadedImageUrls.size}")

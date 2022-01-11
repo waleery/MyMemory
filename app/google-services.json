@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "206900328847",
-    "project_id": "my-memory-5f5c6",
-    "storage_bucket": "my-memory-5f5c6.appspot.com"
+    "project_number": "125301168028",
+    "project_id": "my-memory-62b62",
+    "storage_bucket": "my-memory-62b62.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:206900328847:android:0fdaa576269b5d1f4873fa",
+        "mobilesdk_app_id": "1:125301168028:android:ee8decf91c90a5f2f49a59",
         "android_client_info": {
           "package_name": "pl.edu.pb.mymemory"
         }
       },
       "oauth_client": [
         {
-          "client_id": "206900328847-svmpi9mob7o17im0b9mkhpaj9p0744ad.apps.googleusercontent.com",
+          "client_id": "125301168028-5bqpdp6tir9ib3tdeclu82b7hkrlmrep.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDakYrAt6yQKNmM6piinOjizK6p7vy91fc"
+          "current_key": "AIzaSyCXdS8DT3hQ_RTZd_tXik0tf83phNQREeo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "206900328847-svmpi9mob7o17im0b9mkhpaj9p0744ad.apps.googleusercontent.com",
+              "client_id": "125301168028-5bqpdp6tir9ib3tdeclu82b7hkrlmrep.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
