@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -92,9 +93,15 @@ class MainActivity : AppCompatActivity() {
             R.id.mi_custom -> {
                 showCreationDialog()
             }
+            //if user select option to download game
+            R.id.mi_download -> {
+                showDownloadDialog()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == CREATE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -126,6 +133,16 @@ class MainActivity : AppCompatActivity() {
         }.addOnFailureListener { exception ->
             Log.e(TAG, "Exception when retriving game", exception)
         }
+    }
+
+    private fun showDownloadDialog() {
+        val boardDownloadView = LayoutInflater.from(this).inflate(R.layout.dialog_download_board, null)
+        showAlertDialog("Fetch memory game", boardDownloadView, View.OnClickListener {
+            //grab the value th text of the game name that users wants to download
+            val etDownloadGame = boardDownloadView.findViewById<EditText>(R.id.etDownloadGame)
+            val gameToDownload = etDownloadGame.text.toString().trim()
+            downloadGame(gameToDownload)
+        })
     }
 
     private fun showCreationDialog() {
