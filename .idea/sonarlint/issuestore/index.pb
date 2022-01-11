@@ -15,5 +15,3 @@ j
 :app/src/main/java/pl/edu/pb/mymemory/ImagePickerAdapter.kt,f/7/f752681a201c9af94349ede465ff7e3d4acf478b
 X
 (gradle/wrapper/gradle-wrapper.properties,f/b/fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
-d
-4app/src/main/java/pl/edu/pb/mymemory/MainActivity.kt,9/4/94b5d088b23c5851d03c4b34a742aed0d5c52d06
